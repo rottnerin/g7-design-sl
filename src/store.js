@@ -26,6 +26,8 @@ function fileStore() {
     },
     async addMessage(id, msg) { db.messages[id].push(msg); save(); },
     async getMessages(id) { return db.messages[id] || []; },
+    async getSettings() { return db.settings || {}; },
+    async setSettings(patch) { db.settings = { ...db.settings, ...patch }; save(); },
   };
 }
 
@@ -33,6 +35,7 @@ function firestoreStore() {
   const { Firestore } = require('@google-cloud/firestore');
   const fsdb = new Firestore({ databaseId: process.env.FIRESTORE_DATABASE || '(default)' });
   const sessions = fsdb.collection('sessions');
+  const settings = fsdb.collection('config').doc('settings');
   return {
     async createSession(data) {
       const id = newId();
@@ -53,6 +56,8 @@ function firestoreStore() {
       const q = await sessions.doc(id).collection('messages').orderBy('at').get();
       return q.docs.map((d) => d.data());
     },
+    async getSettings() { return (await settings.get()).data() || {}; },
+    async setSettings(patch) { await settings.set(patch, { merge: true }); },
   };
 }
 

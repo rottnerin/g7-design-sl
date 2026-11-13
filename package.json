@@ -2,8 +2,8 @@
   "name": "service-design-bot",
   "version": "1.0.0",
   "scripts": {
-    "start": "node server.js",
-    "dev": "MOCK_AI=1 ADMIN_USER=teacher ADMIN_PASSWORD=test node server.js"
+    "start": "node --env-file-if-exists=.env server.js",
+    "dev": "MOCK_AI=1 ADMIN_USER=teacher ADMIN_PASSWORD=test CLASS_CODE=test node server.js"
   },
   "dependencies": {
     "@google-cloud/firestore": "^9.4.1",

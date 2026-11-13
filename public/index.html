@@ -3,37 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Design for Service: Meet Your Client</title>
+  <title>Meet Your Client · UNIS MYP Design</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <header class="top">
-    <h1>Design for Service: Meet Your Client</h1>
+    <h1>UNIS MYP Design</h1>
     <span class="who" id="who"></span>
     <button id="leave" hidden>Start over</button>
   </header>
 
   <!-- Step 1: who are you -->
   <main id="start" hidden>
+    <div class="hero">
+      <p>UNIS Hanoi / <b class="blue">MYP</b> /<br><b>Design for Service</b></p>
+      <!-- Shows once public/logo.png exists; hidden until then. -->
+      <img src="/logo.png" alt="UNIS Design" onerror="this.remove()">
+    </div>
+    <div class="band">Meet your client: find out what they need, then design something you can make for them.</div>
     <div class="card" id="resume" hidden style="margin-bottom:16px">
       <h2>Welcome back</h2>
       <p id="resumeText"></p>
       <button class="primary" id="resumeBtn">Continue my chat</button>
       <button id="freshBtn">Start a new one</button>
     </div>
-    <form class="card" id="startForm">
+    <form class="card" id="codeForm" hidden>
+      <h2>Enter your class code</h2>
+      <p class="muted">Your design teacher will give you the code.</p>
+      <label for="classCode">Class code</label>
+      <input type="text" id="classCode" maxlength="40" required autocomplete="off" autocapitalize="none" spellcheck="false">
+      <p class="error" id="codeError" role="alert"></p>
+      <button class="primary" id="codeBtn">Continue</button>
+    </form>
+    <form class="card" id="startForm" hidden>
       <h2>Before you meet your client</h2>
-      <p class="muted">You will chat with someone from your service learning group about a product you could
-        design and make for them. Your teacher can read this chat.</p>
+      <p class="muted">You will chat with a client from your service learning group about a product you could
+        design and make for them. First, tell us who you are. Your teacher can read this chat.</p>
       <div class="row">
         <div><label for="firstName">First name</label><input type="text" id="firstName" maxlength="40" required autocomplete="off"></div>
         <div><label for="lastName">Last name</label><input type="text" id="lastName" maxlength="40" required autocomplete="off"></div>
       </div>
       <label for="section">Design section</label>
       <select id="section" required><option value="">Choose…</option></select>
-      <label for="group">Service learning group</label>
-      <select id="group" required><option value="">Choose…</option></select>
-      <p class="muted" id="mission"></p>
       <p class="error" id="startError" role="alert"></p>
       <button class="primary" id="startBtn">Meet my client</button>
     </form>

@@ -1,3 +1,6 @@
 node_modules
 local-data.json
 .env
+.DS_Store
+*.pdf
+walkthrough-video/

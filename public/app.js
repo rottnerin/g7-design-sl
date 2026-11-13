@@ -1,16 +1,33 @@
 const $ = (id) => document.getElementById(id);
-const KEY = 'sdb.sessionId';
 let config, session, pendingImage = null, busy = false;
 
-const saved = {
-  get() { try { return localStorage.getItem(KEY); } catch { return null; } },
-  set(v) { try { v ? localStorage.setItem(KEY, v) : localStorage.removeItem(KEY); } catch {} },
-};
+const remember = (key) => ({
+  get() { try { return localStorage.getItem(key); } catch { return null; } },
+  set(v) { try { v ? localStorage.setItem(key, v) : localStorage.removeItem(key); } catch {} },
+});
+const saved = remember('sdb.sessionId');
+const savedCode = remember('sdb.classCode');
+let classCode = savedCode.get() || '';
+
+// The class code comes first; the name form appears once it is accepted.
+function askForCode(message) {
+  classCode = '';
+  savedCode.set(null);
+  $('codeError').textContent = message || '';
+  $('codeForm').hidden = false;
+  $('startForm').hidden = true;
+  $('classCode').focus();
+}
+function showNameForm() {
+  $('codeForm').hidden = true;
+  $('startForm').hidden = false;
+}
 
 function show(view) {
   for (const v of ['start', 'chat', 'result']) $(v).hidden = v !== view;
   $('leave').hidden = view === 'start';
-  $('who').textContent = session && view !== 'start' ? `${session.firstName} · ${session.groupName}` : '';
+  $('who').textContent = session && view !== 'start'
+    ? [session.firstName, session.groupName].filter(Boolean).join(' · ') : '';
 }
 
 function addMessage(m) {
@@ -32,25 +49,36 @@ function openChat(data) {
 async function init() {
   config = await api('/api/config');
   for (const s of config.sections) $('section').append(el('option', {}, s));
-  for (const g of config.groups) $('group').append(el('option', { value: g.id }, g.name));
-  $('group').addEventListener('change', () => {
-    const g = config.groups.find((x) => x.id === $('group').value);
-    $('mission').textContent = g ? g.mission : '';
-  });
 
   show('start');
+  if (config.needsCode && !classCode) askForCode(); else showNameForm();
   const id = saved.get();
   if (id) {
     try {
       const data = await api(`/api/sessions/${id}`);
       $('resumeText').textContent =
-        `${data.session.firstName}, you have a chat with ${data.session.groupName} on this computer.`;
+        `${data.session.firstName}, you have a chat ${data.session.groupName ? `with ${data.session.groupName} ` : ''}on this computer.`;
       $('resume').hidden = false;
       $('resumeBtn').onclick = () => openChat(data);
       $('freshBtn').onclick = () => { saved.set(null); $('resume').hidden = true; };
     } catch { saved.set(null); }
   }
 }
+
+$('codeForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('codeError').textContent = '';
+  $('codeBtn').disabled = true;
+  const typed = $('classCode').value.trim();
+  try {
+    await api('/api/join', { classCode: typed });
+    classCode = typed;
+    savedCode.set(typed);
+    showNameForm();
+    $('firstName').focus();
+  } catch (err) { $('codeError').textContent = err.message; }
+  $('codeBtn').disabled = false;
+});
 
 $('startForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -60,9 +88,12 @@ $('startForm').addEventListener('submit', async (e) => {
   try {
     openChat(await api('/api/sessions', {
       firstName: $('firstName').value, lastName: $('lastName').value,
-      section: $('section').value, groupId: $('group').value,
+      section: $('section').value, classCode,
     }));
-  } catch (err) { $('startError').textContent = err.message; }
+  } catch (err) {
+    // The teacher changed the code since this browser last used it.
+    if (err.status === 403) askForCode(err.message); else $('startError').textContent = err.message;
+  }
   $('startBtn').disabled = false;
   $('startBtn').textContent = 'Meet my client';
 });
@@ -87,6 +118,8 @@ async function send() {
     const data = await api(`/api/sessions/${session.id}/messages`, { text, image: sentImage });
     typing.remove();
     addMessage(data.messages[1]);
+    Object.assign(session, data.session); // the group is filled in once the student has named it
+    show('chat');
   } catch (err) {
     typing.remove();
     mine.remove();
@@ -168,4 +201,4 @@ $('leave').onclick = () => {
   }
 };
 
-init().catch((err) => { show('start'); $('startError').textContent = err.message; });
+init().catch((err) => { show('start'); showNameForm(); $('startError').textContent = err.message; });

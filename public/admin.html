@@ -4,15 +4,28 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Teacher view</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <header class="top">
-    <h1>Teacher view</h1>
+    <h1>UNIS MYP Design · Teacher view</h1>
     <button id="refresh">Refresh</button>
   </header>
 
   <main id="list">
+    <form class="card settings no-print" id="settings">
+      <h2>How the client talks</h2>
+      <p class="muted">Changes apply to the next message in every chat. Each reply in a chat log shows the setting it was written with.</p>
+      <label for="temperature">Imagination (temperature): <output id="tempOut"></output></label>
+      <input type="range" id="temperature" min="0" max="2" step="0.1">
+      <p class="muted">0 is predictable and repeats itself. 1 is the normal setting. Towards 2 the ideas get wilder and less reliable.</p>
+      <label for="model">Gemini model</label>
+      <input type="text" id="model" maxlength="60" required autocomplete="off" spellcheck="false">
+      <p class="error" id="settingsMsg" role="status"></p>
+      <button class="primary">Save</button>
+    </form>
     <div class="filters no-print">
       <input type="text" id="search" placeholder="Search by student name" aria-label="Search by student name">
       <select id="fSection" aria-label="Section"><option value="">All sections</option></select>
@@ -50,7 +63,7 @@
         (!$('fGroup').value || s.groupId === $('fGroup').value));
       $('count').textContent = `${shown.length} of ${sessions.length} chats`;
       $('rows').replaceChildren(...shown.map((s) => el('tr', { onclick: () => open(s.id) },
-        el('td', {}, `${s.firstName} ${s.lastName}`), el('td', {}, s.section), el('td', {}, s.groupName),
+        el('td', {}, `${s.firstName} ${s.lastName}`), el('td', {}, s.section), el('td', {}, s.groupName || 'Not named yet'),
         el('td', {}, String(s.messageCount || 0)), el('td', {}, s.hasOnePager ? 'Yes' : ''),
         el('td', {}, new Date(s.updatedAt).toLocaleString()))));
     }
@@ -67,12 +80,26 @@
         : el('p', { class: 'muted' }, 'No one-pager created yet.'));
       $('print').hidden = !session.onePager;
       $('detailTitle').textContent =
-        `Chat log: ${session.firstName} ${session.lastName} (${session.section}) with ${session.groupName}`;
+        `Chat log: ${session.firstName} ${session.lastName} (${session.section}) with ${session.groupName || 'no group named yet'}`;
       $('transcript').replaceChildren(...messages.map((m) => messageNode(m, true)));
       $('list').hidden = true;
       $('detail').hidden = false;
       window.scrollTo(0, 0);
     }
+
+    function showSettings(cfg) {
+      $('temperature').value = cfg.temperature;
+      $('tempOut').textContent = cfg.temperature;
+      $('model').value = cfg.model;
+    }
+    $('temperature').addEventListener('input', () => { $('tempOut').textContent = $('temperature').value; });
+    $('settings').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        showSettings(await api('/api/admin/settings', { temperature: Number($('temperature').value), model: $('model').value.trim() }));
+        $('settingsMsg').textContent = 'Saved.';
+      } catch (err) { $('settingsMsg').textContent = err.message; }
+    });
 
     $('back').onclick = () => { $('detail').hidden = true; $('list').hidden = false; };
     $('print').onclick = () => window.print();
@@ -83,6 +110,7 @@
       config = await api('/api/config');
       for (const s of config.sections) $('fSection').append(el('option', {}, s));
       for (const g of config.groups) $('fGroup').append(el('option', { value: g.id }, g.name));
+      showSettings(await api('/api/admin/settings'));
       await load();
     })().catch((err) => { $('count').textContent = err.message; });
   </script>
