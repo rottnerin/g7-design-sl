@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teacher view</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="top">
+    <h1>Teacher view</h1>
+    <button id="refresh">Refresh</button>
+  </header>
+
+  <main id="list">
+    <div class="filters no-print">
+      <input type="text" id="search" placeholder="Search by student name" aria-label="Search by student name">
+      <select id="fSection" aria-label="Section"><option value="">All sections</option></select>
+      <select id="fGroup" aria-label="Group"><option value="">All groups</option></select>
+    </div>
+    <p class="muted" id="count"></p>
+    <table>
+      <thead><tr><th>Student</th><th>Section</th><th>Group</th><th>Messages</th><th>One-pager</th><th>Last active</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </main>
+
+  <main id="detail" hidden>
+    <div class="toolbar">
+      <button id="back">Back to all students</button>
+      <button id="print" hidden>Print one-pager</button>
+    </div>
+    <div id="onePager"></div>
+    <div class="no-print">
+      <h2 style="margin-top:24px" id="detailTitle"></h2>
+      <div class="transcript" id="transcript"></div>
+    </div>
+  </main>
+
+  <script src="/shared.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let config, sessions = [];
+
+    function render() {
+      const q = $('search').value.trim().toLowerCase();
+      const shown = sessions.filter((s) =>
+        (!q || `${s.firstName} ${s.lastName}`.toLowerCase().includes(q)) &&
+        (!$('fSection').value || s.section === $('fSection').value) &&
+        (!$('fGroup').value || s.groupId === $('fGroup').value));
+      $('count').textContent = `${shown.length} of ${sessions.length} chats`;
+      $('rows').replaceChildren(...shown.map((s) => el('tr', { onclick: () => open(s.id) },
+        el('td', {}, `${s.firstName} ${s.lastName}`), el('td', {}, s.section), el('td', {}, s.groupName),
+        el('td', {}, String(s.messageCount || 0)), el('td', {}, s.hasOnePager ? 'Yes' : ''),
+        el('td', {}, new Date(s.updatedAt).toLocaleString()))));
+    }
+
+    async function load() {
+      sessions = (await api('/api/admin/sessions')).sessions;
+      render();
+    }
+
+    async function open(id) {
+      const { session, messages } = await api(`/api/admin/sessions/${id}`);
+      $('onePager').replaceChildren(session.onePager
+        ? onePagerNode(session, config.accessFm)
+        : el('p', { class: 'muted' }, 'No one-pager created yet.'));
+      $('print').hidden = !session.onePager;
+      $('detailTitle').textContent =
+        `Chat log: ${session.firstName} ${session.lastName} (${session.section}) with ${session.groupName}`;
+      $('transcript').replaceChildren(...messages.map((m) => messageNode(m, true)));
+      $('list').hidden = true;
+      $('detail').hidden = false;
+      window.scrollTo(0, 0);
+    }
+
+    $('back').onclick = () => { $('detail').hidden = true; $('list').hidden = false; };
+    $('print').onclick = () => window.print();
+    $('refresh').onclick = load;
+    for (const id of ['search', 'fSection', 'fGroup']) $(id).addEventListener('input', render);
+
+    (async () => {
+      config = await api('/api/config');
+      for (const s of config.sections) $('fSection').append(el('option', {}, s));
+      for (const g of config.groups) $('fGroup').append(el('option', { value: g.id }, g.name));
+      await load();
+    })().catch((err) => { $('count').textContent = err.message; });
+  </script>
+</body>
+</html>

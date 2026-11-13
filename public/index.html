@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Design for Service: Meet Your Client</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="top">
+    <h1>Design for Service: Meet Your Client</h1>
+    <span class="who" id="who"></span>
+    <button id="leave" hidden>Start over</button>
+  </header>
+
+  <!-- Step 1: who are you -->
+  <main id="start" hidden>
+    <div class="card" id="resume" hidden style="margin-bottom:16px">
+      <h2>Welcome back</h2>
+      <p id="resumeText"></p>
+      <button class="primary" id="resumeBtn">Continue my chat</button>
+      <button id="freshBtn">Start a new one</button>
+    </div>
+    <form class="card" id="startForm">
+      <h2>Before you meet your client</h2>
+      <p class="muted">You will chat with someone from your service learning group about a product you could
+        design and make for them. Your teacher can read this chat.</p>
+      <div class="row">
+        <div><label for="firstName">First name</label><input type="text" id="firstName" maxlength="40" required autocomplete="off"></div>
+        <div><label for="lastName">Last name</label><input type="text" id="lastName" maxlength="40" required autocomplete="off"></div>
+      </div>
+      <label for="section">Design section</label>
+      <select id="section" required><option value="">Choose…</option></select>
+      <label for="group">Service learning group</label>
+      <select id="group" required><option value="">Choose…</option></select>
+      <p class="muted" id="mission"></p>
+      <p class="error" id="startError" role="alert"></p>
+      <button class="primary" id="startBtn">Meet my client</button>
+    </form>
+  </main>
+
+  <!-- Step 2: chat -->
+  <div id="chat" hidden>
+    <div id="log" aria-live="polite"></div>
+    <div id="composer">
+      <div id="preview" hidden><img alt="Drawing to send"><button id="removeImg">Remove</button></div>
+      <div class="line">
+        <textarea id="text" rows="1" maxlength="2000" placeholder="Type your message…" aria-label="Your message"></textarea>
+        <button class="primary" id="send">Send</button>
+      </div>
+      <div class="actions">
+        <span>
+          <button id="attach">Add a drawing</button>
+          <input type="file" id="file" accept="image/*" hidden>
+        </span>
+        <span class="error" id="chatError" role="alert" style="margin:0"></span>
+        <button id="makeOnePager">Create my one-pager</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: one-pager -->
+  <main id="result" hidden>
+    <div class="toolbar">
+      <button id="back">Back to chat</button>
+      <button class="primary" id="print">Print or save as PDF</button>
+    </div>
+    <div id="onePager"></div>
+  </main>
+
+  <script src="/shared.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

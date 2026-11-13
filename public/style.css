@@ -1,0 +1,88 @@
+/* Change these to match the school design site. */
+:root {
+  --accent: #1f5fa8;
+  --accent-dark: #174a84;
+  --accent-soft: #e8f0fa;
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --text: #1c2330;
+  --muted: #5f6b7a;
+  --line: #dde2e8;
+  --radius: 12px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.5; }
+[hidden] { display: none !important; }
+header.top { background: var(--accent); color: #fff; padding: 14px 20px; display: flex; align-items: center; gap: 16px; }
+header.top h1 { font-size: 1.1rem; margin: 0; flex: 1; }
+header.top .who { font-size: .9rem; opacity: .9; }
+main { max-width: 820px; margin: 0 auto; padding: 20px 16px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+h2 { margin-top: 0; }
+label { display: block; font-weight: 600; margin: 14px 0 6px; }
+input[type=text], select, textarea {
+  width: 100%; padding: 11px 12px; font: inherit; color: inherit; background: #fff;
+  border: 1px solid var(--line); border-radius: 8px;
+}
+input:focus, select:focus, textarea:focus, button:focus-visible { outline: 3px solid var(--accent-soft); border-color: var(--accent); }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+button { font: inherit; cursor: pointer; border-radius: 8px; padding: 10px 16px; border: 1px solid var(--line); background: #fff; color: var(--text); }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+button.primary:hover { background: var(--accent-dark); }
+button:disabled { opacity: .55; cursor: default; }
+header.top button { background: transparent; color: #fff; border-color: rgba(255,255,255,.6); padding: 6px 12px; }
+.muted { color: var(--muted); font-size: .92rem; }
+.error { color: #b3261e; margin-top: 12px; min-height: 1.2em; }
+
+/* chat */
+#chat { display: flex; flex-direction: column; height: calc(100vh - 56px); max-width: 820px; margin: 0 auto; padding: 0 16px; }
+#log { flex: 1; overflow-y: auto; padding: 20px 0; display: flex; flex-direction: column; gap: 12px; }
+.msg { max-width: 82%; padding: 11px 14px; border-radius: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg.client { background: var(--card); border: 1px solid var(--line); align-self: flex-start; border-bottom-left-radius: 4px; }
+.msg.student { background: var(--accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+.msg img { display: block; max-width: 100%; max-height: 260px; border-radius: 8px; margin-bottom: 6px; background: #fff; }
+.msg.typing { color: var(--muted); font-style: italic; }
+.msg time { display: block; font-size: .72rem; opacity: .65; margin-top: 4px; }
+#composer { border-top: 1px solid var(--line); padding: 12px 0 16px; background: var(--bg); }
+#composer .line { display: flex; gap: 8px; align-items: flex-end; }
+#composer textarea { resize: none; min-height: 46px; max-height: 160px; }
+#preview { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+#preview img { height: 60px; border-radius: 6px; border: 1px solid var(--line); }
+#composer .actions { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; gap: 8px; flex-wrap: wrap; }
+
+/* one-pager */
+.onepager { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 28px; }
+.onepager .op-head { border-bottom: 3px solid var(--accent); padding-bottom: 10px; margin-bottom: 14px; }
+.onepager h2 { margin: 0 0 4px; font-size: 1.5rem; }
+.onepager .meta { color: var(--muted); font-size: .9rem; }
+.onepager h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); margin: 14px 0 4px; }
+.onepager p { margin: 0; }
+.onepager .chips span { display: inline-block; background: var(--accent-soft); color: var(--accent-dark); border-radius: 99px; padding: 2px 12px; margin-right: 6px; font-weight: 600; font-size: .9rem; }
+.onepager .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.onepager .cell { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; break-inside: avoid; }
+.onepager .cell h3 { margin-top: 0; }
+.onepager .cell h3 b { font-size: 1.1rem; }
+.onepager ul { margin: 0; padding-left: 20px; }
+.onepager .drawing { max-width: 100%; max-height: 280px; display: block; margin-top: 6px; border: 1px solid var(--line); border-radius: 8px; }
+.toolbar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+
+/* teacher view */
+table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); font-size: .93rem; }
+th { background: var(--accent-soft); }
+tbody tr { cursor: pointer; }
+tbody tr:hover { background: #fafbfc; }
+.filters { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.filters > * { flex: 1; min-width: 150px; }
+.transcript { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+
+@media (max-width: 600px) { .row, .onepager .grid { grid-template-columns: 1fr; } .msg { max-width: 92%; } }
+@media print {
+  header.top, .toolbar, .no-print { display: none !important; }
+  body { background: #fff; }
+  main { padding: 0; max-width: none; }
+  .onepager { border: none; padding: 0; }
+  @page { margin: 14mm; }
+}
